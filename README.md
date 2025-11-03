@@ -18,6 +18,7 @@
 | 6 | **Recommendation System** | Collaborative Filtering, ML | [TBD] | ⏳ Planned |
 
 ---
+  
 
 ## GLOBAL SETUP
 

@@ -1,50 +1,32 @@
-# AI Resume Analyzer  
-**Ask your resume anything — powered by RAG, OpenAI, Pinecone, and Ollama**  
-[Live Demo](https://ai-projects-challenge-8rhfvfmompdb5urbnpysyn.streamlit.app/) 
+# AI Resume Analyzer
 
----
+
+## What it does
+Upload PDF resume → Ask questions like:
+> "What are my Python skills?"
+> "List my certifications"
+
+## How it works
+1. **PDF Parsing** → Extract text with PyPDF2
+2. **Chunking** → Split into 500-token pieces
+3. **Embeddings** → HuggingFace (all-MiniLM-L6-v2)
+4. **Vector Store** → FAISS (local) or Pinecone
+5. **RAG** → Retrieve + Generate with LangChain RetrievalQA
+6. **LLM** → Ollama (llama3.2:3b) — 100% private
 
 ## Features
-- **PDF Resume Upload** → Extract text with `PyPDFLoader`
-- **RAG Pipeline** → Retrieve relevant chunks using **FAISS** or **Pinecone**
-- **Dual LLM Support**:
-  - **OpenAI (gpt-4o-mini)** → Fast, accurate, cost-tracked
-  - **Ollama (llama3.2:3b)** → Free, local, private
-- **Smart Fallbacks**:
-  - OpenAI quota exceeded → Auto-switch to local mode
-  - Pinecone fails → FAISS fallback
-- **Security**:
-  - Input sanitization
-  - No personal data leakage
-  - `.env` + Streamlit secrets
-- **Cost Tracking** → Real-time OpenAI usage ($0.000012/query)
-
----
-
-## Tech Stack
-| Component        | Tool |
-|------------------|------|
-| Frontend         | Streamlit |
-| LLM              | OpenAI, Ollama |
-| Embeddings       | OpenAI, HuggingFace |
-| Vector DB        | Pinecone, FAISS |
-| PDF Processing   | PyPDFLoader |
-| Orchestration    | LangChain |
-| Deployment       | Streamlit Cloud |
-
----
-
+- **Input Safety** — Blocks jailbreaks, long prompts
+- **Fallbacks** — FAISS if Pinecone fails
+- **Cost Tracking** — $0.000012/query (OpenAI mode)
+- **Local Mode** — No API keys, no data sent
+- 
 ## Live Demo
-[Try it now!](https://ai-projects-challenge-8rhfvfmompdb5urbnpysyn.streamlit.app/)  
+[Try it now!](https://ai-projects-challenge-8rhfvfmompdb5urbnpysyn.streamlit.app/) 
 > Upload your resume → Ask: *"What are my Python skills?"*
 
----
-
-## Setup (Local)
-
+## Setup
 ```bash
-git clone https://github.com/afif103/6-AI-Projects-Challenge.git
-cd 6-AI-Projects-Challenge/resume_analyzer
+
 
 # Create .env
 cp .env.example .env

@@ -24,10 +24,7 @@ from pinecone import Pinecone, ServerlessSpec
 # Load environment
 load_dotenv()
 
-if "PINECONE_API_KEY" in st.secrets:
-    os.environ["PINECONE_API_KEY"] = st.secrets["PINECONE_API_KEY"]
-    os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
-    os.environ["PINECONE_INDEX"] = st.secrets.get("PINECONE_INDEX", "resume-index")
+
 # ==============================================================
 # CONFIGURATION
 # ==============================================================
@@ -107,6 +104,7 @@ if uploaded_file:
             try:
                 if USE_PINECONE:
                     pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+
                     index_name = os.getenv("PINECONE_INDEX", "resume-index")
 
                     # Check if index exists
@@ -118,6 +116,8 @@ if uploaded_file:
                             metric="cosine",
                             spec=ServerlessSpec(cloud="aws", region="us-east-1"),
                         )
+                    # Get index handle
+                    index = pc.Index(index_name)    
 
                     from langchain_community.vectorstores import Pinecone as PineconeStore
                     vectorstore = PineconeStore.from_documents(chunks, embeddings, index_name=index_name)

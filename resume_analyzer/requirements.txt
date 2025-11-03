@@ -19,7 +19,7 @@ pypdf>=4.2.0
 PyPDF2>=3.0.1
 
 # ---- Pinecone (new SDK) ----
-pinecone>=5.0.0
+pinecone==4.1.0
 
 # ---- Optional local LLM (Ollama) ----
 ollama>=0.1.9
@@ -27,3 +27,4 @@ ollama>=0.1.9
 # ---- Utilities ----
 tiktoken>=0.7.0
 requests>=2.31.0
+

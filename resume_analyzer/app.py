@@ -8,7 +8,7 @@ from PyPDF2 import PdfReader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import OpenAIEmbeddings, HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
-from langchain.chains.retrieval_qa.base import RetrievalQA
+from langchain_community.chains.retrieval_qa import RetrievalQA
 from langchain_community.llms import OpenAI, Ollama
 from langchain.prompts import PromptTemplate
 import os

@@ -242,5 +242,28 @@ Answer:"""
         )
         st.caption(f"**Mode:** {mode} | **Security:** Active | **Optimized for low cost**")
 
+  
     except Exception as e:
-        st.error(f"❌ Failed to process PDF: {e}. Try a text-based (non-scanned) PDF.")
+        error_text = str(e)
+
+        # Detect OpenAI quota or rate-limit errors
+        if "insufficient_quota" in error_text or "You exceeded your current quota" in error_text:
+            st.error(
+            "🚫 **OpenAI quota exceeded** — you've used up your API credit or free tier limit.\n\n"
+            "Please check your [OpenAI Billing Dashboard](https://platform.openai.com/account/billing) "
+            "and either add payment or switch to local mode (Ollama)."
+            )
+
+        # Detect Pinecone quota or auth errors
+        elif "Pinecone" in error_text and "API key" in error_text:
+            st.error(
+            "🔑 **Pinecone API key missing or invalid** — double-check your `.env` file or Streamlit secrets."
+            )
+
+        # Detect scanned/non-text PDFs
+        elif "file" in error_text.lower() and "pdf" in error_text.lower():
+            st.error("📄 The uploaded file seems to be a scanned (image-based) PDF. Please upload a text-based resume instead.")
+
+        # General fallback
+        else:
+            st.error(f"❌ Failed to process PDF: {e}")

@@ -24,12 +24,10 @@ from pinecone import Pinecone, ServerlessSpec
 # Load environment
 load_dotenv()
 
-# Load from Streamlit Cloud secrets (if deployed)
 if "PINECONE_API_KEY" in st.secrets:
     os.environ["PINECONE_API_KEY"] = st.secrets["PINECONE_API_KEY"]
     os.environ["OPENAI_API_KEY"] = st.secrets["OPENAI_API_KEY"]
     os.environ["PINECONE_INDEX"] = st.secrets.get("PINECONE_INDEX", "resume-index")
-
 # ==============================================================
 # CONFIGURATION
 # ==============================================================
@@ -138,19 +136,18 @@ if uploaded_file:
         # LLM SETUP
         # ==============================================================
 
+        
         @st.cache_resource
         def get_llm():
-            try:
-                if USE_OPENAI:
-                    return OpenAI(model="gpt-4o-mini", temperature=0.2)
-                else:
-                    return Ollama(model="llama3.2:3b", temperature=0.2)
-            except Exception as e:
-                st.error(f"LLM init failed: {e}")
-                return Ollama(model="llama3.2:3b", temperature=0.2)
-
+             try:
+                 if USE_OPENAI and os.getenv("OPENAI_API_KEY"):
+                   return OpenAI(model="gpt-4o-mini", temperature=0.2)
+                 else:
+                    raise ValueError("OpenAI key not available or quota exceeded")
+             except Exception as e:
+                 st.warning(f"OpenAI failed ({e}), using local Ollama model instead.")
+                 return Ollama(model="llama3.2:3b", temperature=0.2)
         llm = get_llm()
-
         # ==============================================================
         # PROMPT TEMPLATE
         # ==============================================================
@@ -229,4 +226,3 @@ Answer:"""
 
     except Exception as e:
         st.error(f"❌ Failed to process PDF: {e}. Try a text-based PDF (not scanned).")
-

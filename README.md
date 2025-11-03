@@ -2,7 +2,7 @@
 
 **Goal**: Build 6 production-ready AI projects in 6 weeks — **from idea to live deployment**.
 
-**Live Portfolio**: [https://6-ai-projects-afif.streamlit.app](https://6-ai-projects-afif.streamlit.app)
+**Live Portfolio**: 
 
 ---
 
@@ -10,7 +10,7 @@
 
 | # | Project | Tech | Live URL | Status |
 |---|---------|------|----------|--------|
-| 1 | **Resume Analyzer** | OpenAI, LangChain, Streamlit | [Live](https://resume-analyzer-afif.streamlit.app) | ✅ Done |
+| 1 | **Resume Analyzer** | OpenAI, LangChain, Streamlit | [Live](https://ai-projects-challenge-8rhfvfmompdb5urbnpysyn.streamlit.app) | ✅ Done |
 | 2 | **AI Job Matcher** | Embeddings, Similarity, UI | [TBD] | ⏳ Next |
 | 3 | **News Summarizer** | OpenAI, RAG, Daily Updates | [TBD] | ⏳ Planned |
 | 4 | **AI Chatbot** | LangChain, Ollama, Memory | [TBD] | ⏳ Planned |

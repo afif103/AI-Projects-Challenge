@@ -1,0 +1,30 @@
+# Environment & API keys
+.env
+.streamlit/secrets.toml
+
+# Python virtual environments
+venv/
+env/
+.venv/
+*.pyc
+__pycache__/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE settings
+.vscode/
+.idea/
+
+# Cache & logs
+*.log
+*.sqlite3
+*.db
+.cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Streamlit local files
+.streamlit/config.toml

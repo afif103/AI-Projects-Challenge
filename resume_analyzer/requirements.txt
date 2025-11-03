@@ -1,0 +1,29 @@
+# ---- Core framework ----
+streamlit>=1.37.0
+python-dotenv>=1.0.1
+
+# ---- LangChain ecosystem ----
+langchain>=1.0.3
+langchain-core>=0.2.30
+langchain-community>=0.2.9
+langchain-text-splitters>=0.2.0
+
+# ---- Embeddings & LLMs ----
+openai>=1.42.0
+faiss-cpu>=1.7.4
+huggingface-hub>=0.24.0
+sentence-transformers>=3.0.0
+
+# ---- Document parsing ----
+pypdf>=4.2.0
+PyPDF2>=3.0.1
+
+# ---- Pinecone (new SDK) ----
+pinecone>=5.0.0
+
+# ---- Optional local LLM (Ollama) ----
+ollama>=0.1.9
+
+# ---- Utilities ----
+tiktoken>=0.7.0
+requests>=2.31.0

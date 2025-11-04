@@ -20,7 +20,3 @@
 ---
   
 
-## GLOBAL SETUP
-
-```bash
-pip install -r requirements.txt

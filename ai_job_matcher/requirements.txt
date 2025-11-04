@@ -1,0 +1,14 @@
+streamlit
+langchain
+langchain-community
+langchain-huggingface
+langchain-ollama
+faiss-cpu
+pinecone-client
+PyPDF2
+fpdf>=1.7.2
+tiktoken
+python-dotenv
+sentence-transformers
+ollama
+scikit-learn

@@ -1,28 +1,14 @@
---extra-index-url https://download.pytorch.org/whl/cpu
-
-
-# Core Streamlit and LangChain
 streamlit==1.38.0
 langchain==0.3.0
 langchain-community==0.3.0
-
-# Lightweight embeddings alternative (replace FAISS if needed)
-faiss-cpu==1.8.0
-
-# Avoid huge torch build issues on Streamlit Cloud
 torch==2.2.2
 transformers==4.44.0
 sentence-transformers==3.1.0
-
-# Utils
 fpdf==1.7.2
 beautifulsoup4==4.12.3
 requests==2.32.3
 pinecone-client==3.2.2
 numpy==1.26.4
-
-# Add build helpers
 pip>=24.0
 setuptools>=70.0.0
 wheel>=0.42.0
-

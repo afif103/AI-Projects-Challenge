@@ -1,5 +1,11 @@
 # backend/llm.py
-from langchain_community.llms import Ollama
+try: 
+    from langchain_community.llms import Ollama
+  
+except ImportError:
+    
+    Ollama = None
+
 from langchain_core.prompts import PromptTemplate
 from config.settings import LLM_MODEL, MAX_OUTPUT_CHARS
 

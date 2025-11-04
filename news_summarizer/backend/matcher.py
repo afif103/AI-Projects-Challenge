@@ -1,5 +1,5 @@
 # backend/matcher.py
-from langchain_community.vectorstores import InMemoryVectorStore 
+from langchain_community.vectorstores import FAISS
 from backend.embedder import get_embeddings
 from config.settings import FAISS_INDEX_PATH
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -14,3 +14,4 @@ def build_vector_store(documents):
     vectorstore.save_local(FAISS_INDEX_PATH)
 
     return vectorstore
+

@@ -11,7 +11,7 @@
 | # | Project | Tech | Live URL | Status |
 |---|---------|------|----------|--------|
 | 1 | **Resume Analyzer** | OpenAI, LangChain, Streamlit | [Live](https://ai-projects-challenge-8rhfvfmompdb5urbnpysyn.streamlit.app) | ✅ Done |
-| 2 | **AI Job Matcher** | Embeddings, Similarity, UI | [TBD] | ⏳ Next |
+| 2 | **AI Job Matcher** | Embeddings, Similarity, UI | [Live](https://ai-projects-challenge-aijobmatcher000ermp3tfcrbcrbih.streamlit.app/) | ✅ Done  |
 | 3 | **News Summarizer** | OpenAI, RAG, Daily Updates | [TBD] | ⏳ Planned |
 | 4 | **AI Chatbot** | LangChain, Ollama, Memory | [TBD] | ⏳ Planned |
 | 5 | **Image Classifier** | Hugging Face, Computer Vision | [TBD] | ⏳ Planned |

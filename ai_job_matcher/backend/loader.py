@@ -1,39 +1,55 @@
-# backend/loader.py
-# Handles secure PDF loading using LangChain's PyPDFLoader
+
+import re
+import requests
+from bs4 import BeautifulSoup
 from langchain_community.document_loaders import PyPDFLoader
-from config.settings import MAX_RESUME_PAGES, MIN_TEXT_LENGTH, MAX_TEXT_LENGTH
+from config.settings import MAX_INPUT_CHARS, BANNED_WORDS
 import tempfile
 import os
 
-def load_resume_pdf(pdf_file) -> str:
-    """
-    Securely loads PDF from uploaded file, extracts text, and applies limits.
-    Uses temporary file to avoid memory issues.
-    """
+def clean_text(text: str) -> str:
+    text = re.sub(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', '', text)
+    text = re.sub(r'\S+@\S+\.\S+', '', text)
+    text = re.sub(r'\s+', ' ', text).strip()
+    for word in BANNED_WORDS:
+        text = re.sub(rf'\b{word}\b', '[REDACTED]', text, flags=re.IGNORECASE)
+    return text
+
+def load_from_text(text: str) -> str:
+    text = clean_text(text)
+    if len(text) > MAX_INPUT_CHARS:
+        text = text[:MAX_INPUT_CHARS] + "\n\n[Content truncated]"
+    return text
+
+def load_from_url(url: str) -> str:
     try:
-        # Step 1: Save uploaded file to temporary location
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp:
-            tmp.write(pdf_file.getvalue())   # Write bytes from Streamlit upload
-            tmp_path = tmp.name              # Get path for loader
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        response = requests.get(url, headers=headers, timeout=10)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+        for tag in soup(["script", "style", "nav", "footer", "header", "aside"]):
+            tag.decompose()
+        text = soup.get_text(separator=' ')
+        return load_from_text(text)
+    except Exception as e:
+        raise ValueError(f"Failed to scrape URL: {str(e)}")
 
-        # Step 2: Use LangChain PyPDFLoader (robust, handles encrypted PDFs)
+def load_from_pdf_file(uploaded_file) -> str:
+    """Use PyPDFLoader to extract text from uploaded PDF"""
+    try:
+        # Save uploaded file temporarily
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as tmp_file:
+            tmp_file.write(uploaded_file.getvalue())
+            tmp_path = tmp_file.name
+
+        # Use LangChain PyPDFLoader
         loader = PyPDFLoader(tmp_path)
-        pages = loader.load()[:MAX_RESUME_PAGES]  # Limit pages
+        pages = loader.load()
+        text = "\n".join([page.page_content for page in pages])
 
-        # Step 3: Clean up temp file immediately
+        # Clean up
         os.unlink(tmp_path)
 
-        # Step 4: Combine text from all pages
-        text = "\n".join([p.page_content for p in pages]).strip()
-
-        # Step 5: Input validation
-        if len(text) < MIN_TEXT_LENGTH:
-            raise ValueError("Resume too short. Please upload a detailed resume.")
-        if len(text) > MAX_TEXT_LENGTH:
-            text = text[:MAX_TEXT_LENGTH] + "\n... [truncated]"  # Prevent overflow
-
-        return text
-
+        return load_from_text(text)
     except Exception as e:
-        # Step 6: Wrap any error in user-friendly message
         raise ValueError(f"Failed to read PDF: {str(e)}")

@@ -2,119 +2,113 @@
 import streamlit as st
 import torch
 import os
-from backend.loader import load_from_text, load_from_url
+from backend.loader import load_from_text, load_from_url, load_from_pdf_file
 from backend.llm import get_llm, get_prompt_template, summarize_text
 from utils.report import generate_pdf
 from datetime import datetime
+import time
+import requests
 
-# === PAGE CONFIG ===
-st.set_page_config(
-    page_title="News Summarizer",
-    page_icon="Newspaper",
-    layout="centered"
-)
+st.set_page_config(page_title="News Summarizer", page_icon="Newspaper", layout="centered")
 
-# === CLOUD DETECTION ===
-IS_CLOUD = not os.getenv('OLLAMA_HOST', False) and not torch.cuda.is_available()
 
-# === SIDEBAR ===
+def is_ollama_available():
+    try:
+        r = requests.get("http://localhost:11434/api/tags", timeout=2)
+        return r.status_code == 200
+    except Exception:
+        return False
+
+IS_CLOUD = not is_ollama_available()
+
+
 with st.sidebar:
     st.markdown("### GPU ACCELERATED • Local • Private • Free")
     st.markdown("---")
     st.caption("By [Rami Afif](https://linkedin.com/in/ramiafif)")
     st.caption("Zero token cost • Fully offline-capable")
 
-# === HEADER ===
 st.title("Newspaper News Summarizer")
-st.markdown("*Paste article or URL → Get clean, neutral summary + PDF report*")
+st.markdown("*Paste, URL, or PDF → AI summary + report*")
 
-# === INPUT MODE ===
-input_mode = st.radio("Input Method", ["Paste Text", "Enter URL"], horizontal=True)
+# === INPUT METHOD ===
+input_mode = st.radio("Input", ["Paste Text", "Enter URL", "Upload PDF"], horizontal=True)
 
 article_text = ""
+
 if input_mode == "Paste Text":
-    article_text = st.text_area("Paste news article:", height=300, max_chars=5000)
-else:
-    url = st.text_input("Enter article URL:")
+    article_text = st.text_area("Paste article:", height=300, max_chars=5000)
+    if article_text:
+        article_text = load_from_text(article_text)
+
+elif input_mode == "Enter URL":
+    url = st.text_input("Article URL:")
     if url:
-        with st.spinner("Scraping article..."):
+        with st.spinner("Scraping..."):
             try:
                 article_text = load_from_url(url)
-                st.success("Article loaded!")
+                st.success("Loaded!")
             except Exception as e:
-                st.error(f"Scraping failed: {str(e)}")
+                st.error(str(e))
 
-# === PREVIEW ===
-if article_text:
-    st.markdown("### Preview")
-    preview = article_text[:1000] + ("..." if len(article_text) > 1000 else "")
-    st.text_area("Cleaned Article", preview, height=150, disabled=True)
-
-    # === GENERATE SUMMARY ===
-    if st.button("Generate Summary", type="primary"):
-        with st.spinner("Processing..."):
+elif input_mode == "Upload PDF":
+    pdf_file = st.file_uploader("Upload PDF article", type="pdf")
+    if pdf_file:
+        with st.spinner("Extracting text from PDF..."):
             try:
-                # === CLOUD FALLBACK ===
-                if IS_CLOUD:
-                    st.warning("Cloud Mode: LLM disabled (no Ollama). Use local GPU for full AI summaries!")
-                    summary = (
-                        "This is a demo on Streamlit Cloud. "
-                        "Paste this article into your local version to get a full AI summary with Llama 3.2."
-                    )
-                    key_points = [
-                        "Cloud mode: UI + PDF only",
-                        "Local mode: Full AI summary with Ollama",
-                        "Run locally with `ollama serve`"
-                    ]
+                article_text = load_from_pdf_file(pdf_file)
+                st.success("PDF loaded!")
+            except Exception as e:
+                st.error(str(e))
 
-                # === LOCAL AI MODE ===
+# === PREVIEW & GENERATE ===
+if article_text:
+    preview = article_text[:1000] + ("..." if len(article_text) > 1000 else "")
+    st.markdown("### Preview")
+    st.text_area("Cleaned Text", preview, height=150, disabled=True)
+
+    if st.button("Generate Summary", type="primary"):
+        with st.spinner("Summarizing with Llama 3.2..."):
+            try:
+                if IS_CLOUD:
+                    st.warning("Cloud Mode: LLM disabled. Use local for AI.")
+                    summary = "Demo mode. Run locally with Ollama for full AI."
+                    key_points = ["Cloud: UI + PDF", "Local: Full AI", "Use `ollama serve`"]
                 else:
                     llm = get_llm()
                     prompt = get_prompt_template()
                     summary = summarize_text(llm, prompt, article_text)
+                    key_points = [s.strip().split('.')[0] for s in summary.split('\n') if s.strip() and len(s) > 20][:3]
 
-                    # Extract key points
-                    key_points = []
-                    for line in summary.split('\n'):
-                        line = line.strip()
-                        if line and len(line) > 20:
-                            line = line.lstrip('•*- ').split('.', 1)[0].strip()
-                            if line:
-                                key_points.append(line)
-                    key_points = key_points[:3]
-
-                # === DISPLAY RESULTS ===
                 st.success("Done!")
                 st.markdown("### Summary")
                 st.write(summary)
-
                 st.markdown("### Key Points")
-                for point in key_points:
-                    st.markdown(f"- {point}")
+                for p in key_points:
+                    st.markdown(f"- {p}")
 
-                # === PDF REPORT ===
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                pdf_file = f"summary_{timestamp}.pdf"
-                generate_pdf("AI News Digest", summary, key_points, pdf_file)
-
-                with open(pdf_file, "rb") as f:
-                    st.download_button(
-                        "Download PDF Report",
-                        f,
-                        file_name=pdf_file,
-                        mime="application/pdf"
-                    )
+                # PDF Report
+                pdf_path = f"summary_{datetime.now():%Y%m%d_%H%M%S}.pdf"
+                try:
+                    generate_pdf("AI News Digest", article_text, summary, key_points, pdf_path)
+                    time.sleep(0.5)  # Let file write fully
+                    if os.path.exists(pdf_path) and os.path.getsize(pdf_path) > 1000:
+                        with open(pdf_path, "rb") as f:
+                            st.download_button(
+                                "Download PDF Report",
+                                f,
+                                file_name=pdf_path,
+                                mime="application/pdf"
+                            )
+                        st.success("PDF ready!")
+                    else:
+                         st.error("PDF generation failed — file too small.")
+                except Exception as e:
+                    st.error(f"PDF error: {e}")
 
             except Exception as e:
                 st.error(f"Error: {str(e)}")
-                st.info("Tip: Run `ollama serve` locally if using GPU mode.")
+                st.info("Ensure Ollama Desktop is running and `llama3.2` is pulled.")
 
-# === FOOTER ===
 st.markdown("---")
-col1, col2 = st.columns(2)
-with col1:
-    st.markdown(f"**GPU:** {'Yes' if torch.cuda.is_available() else 'No'}")
-with col2:
-    st.markdown(f"**Ollama:** {'Running' if not IS_CLOUD else 'Cloud (Disabled)'}")
-
 st.caption("© 2025 Rami Afif • LLMOps Engineer")

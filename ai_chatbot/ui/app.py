@@ -5,11 +5,17 @@ Uses Groq (fast, free) - Local Ollama for dev
 """
 import streamlit as st
 import os
-from dotenv import load_dotenv
 from langchain_groq import ChatGroq  # ← For cloud
 from langchain_community.llms import Ollama  # ← For local
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+
+# ui/app.py - Add this at top
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # python-dotenv not available (Streamlit Cloud)
 
 # Load .env (if exists)
 load_dotenv()

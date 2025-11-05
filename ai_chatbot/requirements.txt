@@ -1,12 +1,14 @@
 streamlit==1.38.0
+langchain-groq==0.2.0 
 langchain==0.3.1
-langchain-community==0.3.0  # ← Has Ollama
+langchain-community==0.3.0  
 langchain-core==0.3.1
 langsmith==0.1.125
 python-dotenv==1.0.1
 pydantic==2.9.2
 fastapi==0.115.0
 uvicorn==0.30.6
-langchain-groq==0.2.0      # ← NEW: For Groq
+
 
 # Remove langchain-openai for now
+

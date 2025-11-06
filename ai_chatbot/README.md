@@ -16,11 +16,14 @@
 ```bash
 pip install -r requirements.txt
 
-cd /ui
+cd backend
+uvicorn main:app --reload
 
+cd /ui
 streamlit run app.py
 
 # (Optional) Install Ollama for local LLM
 # https://ollama.ai/download
 ollama pull
+
 

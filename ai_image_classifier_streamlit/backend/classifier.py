@@ -22,6 +22,10 @@ from groq import Groq
 from dotenv import load_dotenv
 from .prompts import CLASSIFIER_PROMPT, DEFAULT_LABELS
 
+
+# Detect if running in Streamlit Cloud (no ollama)
+IS_CLOUD = os.getenv("STREAMLIT_CLOUD") == "true" or "STREAMLIT" in os.environ
+
 # Load environment variables (for Groq API key)
 load_dotenv()
 
@@ -132,4 +136,5 @@ class ImageClassifier:
         if self.mode == "ollama":
             return self._classify_ollama(img)
         else:
+
             return self._classify_groq(img)

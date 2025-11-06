@@ -6,13 +6,13 @@ import json
 import os
 from PIL import Image
 from langchain_groq import ChatGroq
-from langchain_core.messages import HumanMessage  # Fixed import
+from langchain_core.messages import HumanMessage
 from dotenv import load_dotenv
 
 load_dotenv()
 
 # === CONFIG ===
-MODEL = "llama-3.2-11b-vision-preview"
+MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"  # Updated: New vision model
 DEFAULT_LABELS = ["cat", "dog", "car", "tree", "person", "food", "house", "airplane"]
 PROMPT = """Analyze the image and classify it as one of: {labels}.
 Return JSON only:
@@ -25,7 +25,7 @@ Return JSON only:
 
 st.set_page_config(page_title="AI Image Classifier", page_icon="Camera", layout="wide")
 st.title("Camera Zero-Shot Image Classifier")
-st.caption("Powered by Groq + LLaVA-3.2 • Manila-built • Cloud Live")
+st.caption("Powered by Groq + Llama 4 Scout • Manila-built • Cloud Live")
 
 # === LLM ===
 @st.cache_resource

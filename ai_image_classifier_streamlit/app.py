@@ -6,7 +6,7 @@ import json
 import os
 from PIL import Image
 from langchain_groq import ChatGroq
-from langchain.schema import HumanMessage
+from langchain_core.messages import HumanMessage  # Fixed import
 from dotenv import load_dotenv
 
 load_dotenv()

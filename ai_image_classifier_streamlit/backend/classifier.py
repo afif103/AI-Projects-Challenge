@@ -133,10 +133,11 @@ class ImageClassifier:
         Public method: Preprocess → classify → return JSON result.
         """
         img = self._preprocess_image(image_bytes)
-        if IS_CLOUD:
-            return {"label": "unavailable", "confidence": 0.0, "reason": "Ollama not supported in cloud. Use Groq mode."}
-        return self._classify_ollama(img)
-        else:
+          if IS_CLOUD:
+              return {"label": "unavailable", "confidence": 0.0, "reason": "Ollama not supported in cloud. Use Groq mode."}
+          return self._classify_ollama(img)
+          else:
 
             return self._classify_groq(img)
+
 

@@ -16,4 +16,10 @@ Zero-shot classification using **Ollama (local)** or **Groq (cloud)**.
 3. **Create Conda env**:
    ```bash
    conda create -n img-class python=3.12 -y
+
    conda activate img-class
+   
+   pip install -r requirements.txt     
+   ollama pull llava  
+   ollama serve
+   streamlit run frontend/app.py            

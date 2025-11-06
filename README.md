@@ -14,7 +14,7 @@
 | 2 | **AI Job Matcher** | Embeddings, Similarity, UI | [Live](https://ai-projects-challenge-aijobmatcher000ermp3tfcrbcrbih.streamlit.app/) | ✅ Done  |
 | 3 | **News Summarizer** | RAG, Daily Updates, BeautifulSoup | [Live](https://ai-projects-challenge-ainewssummarizercrjyyn2hzpdc.streamlit.app/) | ✅ Done  |
 | 4 | **AI Chatbot** | LangChain, Ollama, Memory, Groq|  [Live](https://ai-projects-challenge-aichatbotyq46ledde6l.streamlit.app/) | ✅ Done |
-| 5 | **Image Classifier** | Hugging Face, Computer Vision | [TBD] | ⏳ Planned |
+| 5 | **Image Classifier** | Hugging Face, Computer Vision | [Live](https://ai-projects-challenge-aiimageclassifiermv85ypu.streamlit.app/) | ✅ Done  |
 | 6 | **Recommendation System** | Collaborative Filtering, ML | [TBD] | ⏳ Planned |
 
 ---

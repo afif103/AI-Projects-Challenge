@@ -1,7 +1,4 @@
-streamlit
-pillow
-pandas
-numpy
-groq>=0.3.0
-python-dotenv
-
+streamlit==1.51.0
+langchain-groq==0.2.0
+pillow==11.1.0
+python-dotenv==1.0.1

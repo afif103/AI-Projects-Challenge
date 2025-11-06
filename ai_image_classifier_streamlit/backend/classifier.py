@@ -1,107 +1,47 @@
 """
-Core classification logic.
-Supports:
-  - Ollama (local, private): Uses LLaVA model
-  - Groq (cloud, fast): Uses Llama 3.2 11B Vision
-
-Features:
-  - Image validation (size, format)
-  - Auto-resize for efficiency
-  - Base64 encoding for API
-  - JSON response parsing with fallback
+Core logic: Groq only in cloud
 """
-
 import base64
 import io
 import json
 import os
 from typing import Dict, List, Optional
 from PIL import Image
-import ollama
 from groq import Groq
 from dotenv import load_dotenv
 from .prompts import CLASSIFIER_PROMPT, DEFAULT_LABELS
 
-
-# Detect if running in Streamlit Cloud (no ollama)
-IS_CLOUD = os.getenv("STREAMLIT_CLOUD") == "true" or "STREAMLIT" in os.environ
-
-# Load environment variables (for Groq API key)
 load_dotenv()
 
+# Detect Streamlit Cloud
+IS_CLOUD = os.getenv("STREAMLIT_CLOUD") == "true" or "STREAMLIT" in os.environ
+
 class ImageClassifier:
-    def __init__(self, mode: str = "ollama", labels: Optional[List[str]] = None):
-        """
-        Initialize classifier with mode and custom labels.
-        
-        Args:
-            mode (str): "ollama" for local, "groq" for cloud
-            labels (List[str], optional): Custom classification labels
-        """
+    def __init__(self, mode: str = "groq", labels: Optional[List[str]] = None):
         self.mode = mode.lower()
         self.labels = labels or DEFAULT_LABELS
         self.label_str = ", ".join(self.labels)
 
-        # Setup Groq client if in cloud mode
         if self.mode == "groq":
             api_key = os.getenv("GROQ_API_KEY")
             if not api_key:
-                raise ValueError("GROQ_API_KEY not found in .env file")
+                raise ValueError("GROQ_API_KEY missing")
             self.client = Groq(api_key=api_key)
-            self.model = "llama-3.2-11b-vision-preview"  # Fast vision model
+            self.model = "llama-3.2-11b-vision-preview"
 
     def _preprocess_image(self, image_bytes: bytes) -> Image.Image:
-        """
-        Validate and preprocess image.
-        - Rejects files > 5MB
-        - Converts to RGB
-        - Resizes to max 1024px per side
-        """
         if len(image_bytes) > 5 * 1024 * 1024:
-            raise ValueError("Image exceeds 5MB limit")
-        
-        try:
-            img = Image.open(io.BytesIO(image_bytes))
-            if img.mode != "RGB":
-                img = img.convert("RGB")
-            img.thumbnail((1024, 1024))  # Reduce compute & memory
-            return img
-        except Exception as e:
-            raise ValueError(f"Invalid or corrupted image: {e}")
+            raise ValueError("Image too large (>5MB)")
+        img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+        img.thumbnail((1024, 1024))
+        return img
 
     def _encode_image(self, img: Image.Image) -> str:
-        """
-        Convert PIL image to base64 string (used by both backends).
-        """
         buffered = io.BytesIO()
         img.save(buffered, format="JPEG", quality=85)
         return base64.b64encode(buffered.getvalue()).decode()
 
-    def _classify_ollama(self, img: Image.Image) -> Dict:
-        """
-        Run inference using local Ollama + LLaVA.
-        Requires: `ollama serve` and `ollama pull llava`
-        """
-        img_b64 = self._encode_image(img)
-        prompt = CLASSIFIER_PROMPT.format(labels=self.label_str)
-
-        try:
-            response = ollama.chat(
-                model="llava",  # ← Use vision model
-                messages=[{"role": "user", "content": prompt, "images": [img_b64]}]
-                )
-            raw_text = response["message"]["content"]
-            return json.loads(raw_text)
-        except json.JSONDecodeError:
-            return {"label": "unknown", "confidence": 0.0, "reason": "Failed to parse model output"}
-        except Exception as e:
-            return {"label": "error", "confidence": 0.0, "reason": f"Ollama error: {e}"}
-
     def _classify_groq(self, img: Image.Image) -> Dict:
-        """
-        Run inference using Groq cloud API.
-        Fast, rate-limited (free tier: ~30 req/min).
-        """
         img_b64 = self._encode_image(img)
         prompt = CLASSIFIER_PROMPT.format(labels=self.label_str)
 
@@ -112,32 +52,20 @@ class ImageClassifier:
                     "role": "user",
                     "content": [
                         {"type": "text", "text": prompt},
-                        {
-                            "type": "image_url",
-                            "image_url": {"url": f"data:image/jpeg;base64,{img_b64}"}
-                        }
+                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{img_b64}"}}
                     ]
                 }],
-                temperature=0.1,   # Low for consistency
-                max_tokens=100     # Short JSON response
+                temperature=0.1,
+                max_tokens=100
             )
-            raw_text = completion.choices[0].message.content
-            return json.loads(raw_text)
-        except json.JSONDecodeError:
-            return {"label": "unknown", "confidence": 0.0, "reason": "Failed to parse model output"}
+            return json.loads(completion.choices[0].message.content)
         except Exception as e:
-            return {"label": "error", "confidence": 0.0, "reason": f"Groq API error: {e}"}
+            return {"label": "error", "confidence": 0.0, "reason": f"Groq: {e}"}
 
     def classify(self, image_bytes: bytes) -> Dict:
-        """
-        Public method: Preprocess → classify → return JSON result.
-        """
         img = self._preprocess_image(image_bytes)
-          if IS_CLOUD:
-              return {"label": "unavailable", "confidence": 0.0, "reason": "Ollama not supported in cloud. Use Groq mode."}
-          return self._classify_ollama(img)
-          else:
-
-            return self._classify_groq(img)
-
-
+        
+        if self.mode == "ollama":
+            return {"label": "unavailable", "confidence": 0.0, "reason": "Ollama not supported in cloud. Use Groq."}
+        else:
+            return self._classify_groq(img)  # ← No indent error

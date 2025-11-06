@@ -1,61 +1,21 @@
-# 🤖 AI Chatbot (LangChain + LangSmith + Streamlit)
+# 🤖 AI Chatbot (Live!)
 
-**Local, Private, Observable AI Chatbot**  
-Built with **separation of concerns**: Backend (FastAPI + LangChain) ↔ Frontend (Streamlit)
+**Live Demo**: [https://ai-projects-challenge-aichatbotyq46ledde6l.streamlit.app/](https://ai-projects-challenge-aichatbotyq46ledde6l.streamlit.app/)
 
----
+## Features
+- Powered by **Groq + Llama 3.1** (instant responses)
+- Built with **LangChain + Streamlit**
+- Local Ollama support (optional)
+- Clean, modular code
 
-## 🚀 Live Demo (Local)
+## Tech Stack
+- `langchain-groq`, `streamlit`, `python-dotenv`
+- Deployed on **Streamlit Community Cloud** (free)
 
+## Local Run
 ```bash
-http://localhost:8501
+pip install -r requirements.txt
 
+cd /ui
 
-🛡️ Privacy & Safety
-
-100% Local Processing Option: Use LOCAL_LLM=true + Ollama/LM Studio
-No User Data Stored
-LangSmith Tracing (Optional, Opt-Out via .env)
-Input Sanitized & Rate-Limited
-
-
-▶️ Run Locally
-1. Clone & Setup
-
-git clone https://github.com/yourname/ai-chatbot.git
-cd ai-chatbot
-cp .env.example .env
-
-
-2. Get API Keys
-
-OpenAI API Key
-LangSmith API Key
-
-Paste into .env
-3. Run with Docker (Recommended)
-
-docker-compose up --build
-
-UI: http://localhost:8501
-API: http://localhost:8000
-
-4. Or Run Separately
-
-# Terminal 1 - Backend
-cd backend && uvicorn main:app --reload
-
-# Terminal 2 - UI
-cd ui && streamlit run app.py
-
-🔍 LangSmith Tracing
-All chains are traced:
-
-
-https://smith.langchain.com/projects/p/ai-chatbot-local
-
-Evaluate prompts, latency, and correctness.
-
-🧪 Test Chain
-
-cd backend && pytest tests/
+streamlit run app.py

@@ -15,7 +15,7 @@
 | 3 | **News Summarizer** | RAG, Daily Updates, BeautifulSoup | [Live](https://ai-projects-challenge-ainewssummarizercrjyyn2hzpdc.streamlit.app/) | ✅ Done  |
 | 4 | **AI Chatbot** | LangChain, Ollama, Memory, Groq|  [Live](https://ai-projects-challenge-aichatbotyq46ledde6l.streamlit.app/) | ✅ Done |
 | 5 | **Image Classifier** | Groq, Llava, Computer Vision | [Live](https://ai-projects-challenge-aiimageclassifiermv85ypu.streamlit.app/) | ✅ Done  |
-| 6 | **Recommendation System** | Collaborative Filtering, ML | [TBD] | ⏳ Planned |
+| 6 | **Recommendation System** | Collaborative Filtering, ML | [Live](https://ai-projects-challenge-airecommendationstream7856vezo.streamlit.app/) | ✅ Done |
 
 ---
   

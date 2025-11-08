@@ -1,5 +1,5 @@
 # app.py
-import streamlit as st, os, json
+import streamlit as st, os
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -7,7 +7,6 @@ from langchain_groq import ChatGroq
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.runnables import RunnablePassthrough
 
-# === UI ===
 st.set_page_config(page_title="AI Recommender", layout="wide")
 st.title("AI Movie Recommender")
 st.caption("Llama 3.2 + RAG — LangChain 1.x + ChatPromptTemplate")
@@ -24,17 +23,28 @@ if st.button("Get Recommendations", type="primary"):
         # === LLM (Groq) ===
         llm = ChatGroq(model="llama-3.2-3b-preview", groq_api_key=os.getenv("GROQ_API_KEY"), temperature=0.3)
 
-        # === CHAT PROMPT TEMPLATE (MODERN 1.X STYLE) ===
+        # === SAFE FORMAT (handles dict or Document) ===
+        def safe_format(docs):
+            formatted = []
+            for d in docs:
+                # Handle both Document and dict
+                title = d.get("metadata", {}).get("title", "Unknown") if isinstance(d, dict) else getattr(d, "metadata", {}).get("title", "Unknown")
+                content = d.get("page_content", "") if isinstance(d, dict) else getattr(d, "page_content", "")
+                if isinstance(content, str):
+                    content = content.replace("\x00", "").strip()
+                formatted.append(f"{title}: {content}")
+            return "\n".join(formatted) if formatted else "No items found."
+
+        # === CHAT PROMPT TEMPLATE ===
         prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are a movie recommendation expert. Return ONLY valid JSON."),
+            ("system", "You are a movie recommendation expert. Return ONLY valid JSON with 'recommendations' list."),
             ("human", "Profile: {profile}\nQuery: {input}\n\nRelevant items:\n{context}\n\n"
                       "Return: {{\"recommendations\": [{{title, score, reason}}, ...]}}")
         ])
 
         # === CHAIN ===
         chain = (
-            {"context": retriever | (lambda docs: "\n".join([f"{d.metadata.get('title','?')}: {d.page_content}" for d in docs])),
-             "profile": RunnablePassthrough(), "input": RunnablePassthrough()}
+            {"context": retriever | safe_format, "profile": RunnablePassthrough(), "input": RunnablePassthrough()}
             | prompt
             | llm
             | JsonOutputParser()

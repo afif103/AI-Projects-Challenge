@@ -5,11 +5,16 @@ from langchain_core.runnables import RunnablePassthrough
 from langchain_ollama import ChatOllama
 from backend.core.prompts import RECOMMENDER_PROMPT
 from backend.db.vector_store import get_vector_store
+from langchain_groq import ChatGroq
 import os
 
 os.environ["LANGCHAIN_TRACING_V2"] = "false"
 
-llm = ChatOllama(model="llama3.2:3b", temperature=0.3, timeout=60)
+llm = ChatGroq(
+    model="llama-3.2-3b-preview",
+    temperature=0.3,
+    groq_api_key=os.getenv("GROQ_API_KEY")  # From secrets
+)
 
 vector_store = get_vector_store()
 retriever = vector_store.as_retriever(search_kwargs={"k": 10})
@@ -49,4 +54,5 @@ def get_recommendations(profile: str, query: str, history: list = None):
         recs = response.get("recommendations", [])
         return {"recommendations": recs[:3]} if recs else {"recommendations": [], "reason": "No matches"}
     except Exception as e:
+
         return {"recommendations": [], "reason": f"Error: {str(e)}"}

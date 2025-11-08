@@ -10,11 +10,11 @@ import os
 
 os.environ["LANGCHAIN_TRACING_V2"] = "false"
 
-llm = ChatGroq(
-    model="llama-3.2-3b-preview",
-    temperature=0.3,
-    groq_api_key=os.getenv("GROQ_API_KEY")  # From secrets
-)
+
+try:
+    llm = ChatOllama(model="llama3.2:3b", temperature=0.3)
+except:
+    llm = ChatGroq(model="llama3.2-3b-128k-instruct", temperature=0.3, groq_api_key=os.getenv("GROQ_API_KEY"))
 
 vector_store = get_vector_store()
 retriever = vector_store.as_retriever(search_kwargs={"k": 10})
@@ -56,3 +56,4 @@ def get_recommendations(profile: str, query: str, history: list = None):
     except Exception as e:
 
         return {"recommendations": [], "reason": f"Error: {str(e)}"}
+
